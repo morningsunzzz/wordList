@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>英语词库</title>
+    <style>
+        /* 现代简约风格 */
+        :root {
+            --primary-color: #4CAF50;
+            --background: #f5f5f5;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: var(--background);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            padding-top: 90px;
+            padding-bottom: 80px;
+        }
+
+        .search-box {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+
+        .search-box-inner {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        #searchInput {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            box-sizing: border-box;
+        }
+
+        #searchInput:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .word-card {
+            background: white;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+            cursor: pointer;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            position: relative;
+        }
+
+        .word-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .word-header {
+            color: var(--primary-color);
+            margin: 0 0 10px 0;
+        }
+
+        .tag {
+            display: inline-block;
+            background: #e0f2f1;
+            color: #00796b;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            margin-right: 5px;
+        }
+
+        .word-forms {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin: 10px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        .word-form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-label {
+            font-size: 0.8em;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .form-value {
+            font-weight: 500;
+            color: #2196F3;
+        }
+
+        .word-type {
+            display: inline-block;
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            margin-left: 8px;
+        }
+
+        /* 新增音标样式 */
+        .pronunciation {
+            color: #666;
+            font-size: 0.8em;
+            margin-left: 8px;
+            font-family: 'Arial', sans-serif;
+        }
+
+        /* 调整词形布局 */
+        .word-form .form-value {
+            display: flex;
+            align-items: baseline;
+        }
+
+        /* 添加发音按钮样式 */
+        .speak-button {
+            background: none;
+            border: none;
+            color: #2196F3;
+            cursor: pointer;
+            padding: 2px 6px;
+            margin-left: 4px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .speak-button:hover {
+            background-color: #e3f2fd;
+        }
+
+        .speak-button:active {
+            background-color: #e3f2fd;
+            transform: none;
+        }
+
+        .speak-button:focus {
+            outline: none;
+        }
+
+        .speak-button i {
+            font-size: 16px;
+        }
+
+        /* 优化单词释义的样式 */
+        .definition {
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            transition: all 0.2s ease-out;
+            margin: 0;
+            padding: 0;
+            -webkit-user-select: text;
+            user-select: text;
+            touch-action: auto;
+        }
+
+        .definition.show {
+            max-height: 200px; /* 调整为更合适的高度 */
+            opacity: 1;
+            margin-top: 10px;
+            padding: 5px 0;
+        }
+
+        /* 优化展开/收起的指示器动画 */
+        .toggle-indicator {
+            float: none;
+            display: inline-block;
+            color: #666;
+            transition: all 0.2s ease-out;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+
+        .toggle-indicator.show {
+            transform: rotate(180deg);
+        }
+
+        /* 添加内容包装器来优化动画 */
+        .definition-wrapper {
+            transform-origin: top;
+            transition: transform 0.2s ease-out;
+        }
+
+        .definition-wrapper.show {
+            transform: scaleY(1);
+        }
+
+        /* 移除旧的筛选按钮样式 */
+        .filter-buttons {
+            display: none;
+        }
+
+        /* 底部导航栏样式 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            padding: 10px 0;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .nav-tab {
+            padding: 8px 16px;
+            color: #666;
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .nav-tab.active {
+            color: var(--primary-color);
+        }
+
+        .nav-tab i {
+            font-size: 20px;
+        }
+
+        /* 确认标记按钮 */
+        .confirm-mark {
+            position: fixed;
+            bottom: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+
+        /* 单词卡片标记按钮 */
+        .mark-buttons {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .mark-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .mark-btn.mastered {
+            border-color: #4CAF50;
+            color: #4CAF50;
+        }
+
+        .mark-btn.mastered.active {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .mark-btn.review {
+            border-color: #f44336;
+            color: #f44336;
+        }
+
+        .mark-btn.review.active {
+            background: #f44336;
+            color: white;
+        }
+
+        /* 单词卡片边框效果 */
+        .word-card[data-status="mastered"] {
+            border: 2px solid #4CAF50;
+        }
+
+        .word-card[data-status="review"] {
+            border: 2px solid #f44336;
+        }
+
+        /* 添加禁用双击缩放的样式 */
+        * {
+            touch-action: manipulation;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        /* 调整 tags 容器样式 */
+        .tags-container {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+    </style>
+
+    <!-- 添加 Font Awesome 图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+
+<body>
+    <div class="search-box">
+        <div class="search-box-inner">
+            <input type="text" id="searchInput" placeholder="输入关键词搜索...">
+        </div>
+    </div>
+    <div class="container">
+        <div id="wordList"></div>
+    </div>
+
+    <!-- 修改底部导航和确认按钮 -->
+    <div class="bottom-nav">
+        <a href="#" class="nav-tab active" data-filter="all">
+            <i class="fas fa-list"></i>
+            <span>全部</span>
+        </a>
+        <a href="#" class="nav-tab" data-filter="mastered">
+            <i class="fas fa-check-circle"></i>
+            <span>已掌握</span>
+        </a>
+        <a href="#" class="nav-tab" data-filter="review">
+            <i class="fas fa-sync"></i>
+            <span>需复习</span>
+        </a>
+    </div>
+
+    <button class="confirm-mark" onclick="confirmMarkedWords()">
+        确认标记 <i class="fas fa-check"></i>
+    </button>
+
+    <!-- 引入数据文件 -->
+    <script src="data/verbs.js"></script>
+
+    <script>
+        // 添加音频管理和防抖控制
+        const audioManager = {
+            currentAudio: null,
+            isPlaying: false,
+            
+            play: function(word) {
+                // 如果正在播放，直接返回
+                if (this.isPlaying) {
+                    return;
+                }
+                
+                // 如果有之前的音频，停止它
+                if (this.currentAudio) {
+                    this.currentAudio.pause();
+                    this.currentAudio.currentTime = 0;
+                }
+                
+                this.isPlaying = true;
+                
+                // 创建新的音频实例
+                this.currentAudio = new Audio(`https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(word)}&type=2`);
+                
+                // 播放完成后的处理
+                this.currentAudio.onended = () => {
+                    this.isPlaying = false;
+                    this.currentAudio = null;
+                };
+                
+                // 错误处理
+                this.currentAudio.onerror = () => {
+                    this.isPlaying = false;
+                    this.currentAudio = null;
+                    console.error('音频播放失败');
+                };
+                
+                // 播放音频
+                this.currentAudio.play()
+                    .catch(error => {
+                        console.error('播放失败:', error);
+                        this.isPlaying = false;
+                        this.currentAudio = null;
+                    });
+            }
+        };
+
+        // 更新发音功能
+        function speak(word) {
+            audioManager.play(word);
+        }
+
+        // 更新格式化词形显示函数
+        function formatVerbForm(word, phonetic) {
+            return `
+                <span>${word}</span>
+                <span class="pronunciation">${phonetic}</span>
+                <button class="speak-button" 
+                    onclick="event.stopPropagation(); speak('${word.replace(/'/g, "\\'")}')">
+                    <i class="fas fa-volume-up"></i>
+                </button>
+            `;
+        }
+
+        // 添加状态管理
+        const wordStatus = {
+            // 从 localStorage 加载状态
+            load() {
+                const saved = localStorage.getItem('wordStatus');
+                return saved ? JSON.parse(saved) : {};
+            },
+
+            // 保存状态到 localStorage
+            save(status) {
+                localStorage.setItem('wordStatus', JSON.stringify(status));
+            },
+
+            // 更新单词状态
+            update(word, status) {
+                const currentStatus = this.load();
+                if (status === null) {
+                    delete currentStatus[word];
+                } else {
+                    currentStatus[word] = status;
+                }
+                this.save(currentStatus);
+            }
+        };
+
+        // 更新渲染函数
+        const renderWords = (words) => {
+            const container = document.getElementById('wordList');
+            const status = wordStatus.load();
+            
+            container.innerHTML = words.map(word => `
+                <div class="word-card" onclick="toggleDefinition(event, this)" data-word="${word.word}" data-status="${status[word.word] || ''}">
+                    <div class="mark-buttons">
+                        <button class="mark-btn mastered ${status[word.word] === 'mastered' ? 'active' : ''}"
+                                onclick="toggleMark(event, this, '${word.word}', 'mastered')">
+                            <i class="fas fa-check"></i>
+                        </button>
+                        <button class="mark-btn review ${status[word.word] === 'review' ? 'active' : ''}"
+                                onclick="toggleMark(event, this, '${word.word}', 'review')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <h3 class="word-header">
+                        ${word.word}
+                        <span class="word-type">${word.type}</span>
+                    </h3>
+                    <div class="word-forms">
+                        <div class="word-form">
+                            <span class="form-label">原形</span>
+                            <div class="form-value">
+                                ${formatVerbForm(word.forms.original, word.forms.original_phonetic)}
+                            </div>
+                        </div>
+                        <div class="word-form">
+                            <span class="form-label">过去式</span>
+                            <div class="form-value">
+                                ${formatVerbForm(word.forms.past, word.forms.past_phonetic)}
+                            </div>
+                        </div>
+                        <div class="word-form">
+                            <span class="form-label">过去分词</span>
+                            <div class="form-value">
+                                ${formatVerbForm(word.forms.pastParticiple, word.forms.pastParticiple_phonetic)}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tags-container">
+                        ${word.tags.map(t => `<span class="tag">${t}</span>`).join('')}
+                        <i class="fas fa-chevron-down toggle-indicator"></i>
+                    </div>
+                    <div class="definition">
+                        <div class="definition-wrapper">
+                            <strong>释义：</strong>${word.definition}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 标记切换函数
+        function toggleMark(event, button, word, status) {
+            event.stopPropagation();
+            const card = button.closest('.word-card');
+            const currentStatus = card.dataset.status;
+            
+            if (currentStatus === status) {
+                card.dataset.status = '';
+                button.classList.remove('active');
+            } else {
+                card.querySelectorAll('.mark-btn').forEach(btn => btn.classList.remove('active'));
+                card.dataset.status = status;
+                button.classList.add('active');
+            }
+        }
+
+        // 确认标记函数
+        function confirmMarkedWords() {
+            const cards = document.querySelectorAll('.word-card');
+            const newStatus = {};
+            
+            cards.forEach(card => {
+                const word = card.dataset.word;
+                const status = card.dataset.status;
+                if (status) {
+                    newStatus[word] = status;
+                }
+            });
+
+            // 保存到 localStorage
+            wordStatus.save(newStatus);
+            
+            // 显示确认消息
+            alert('标记已保存！');
+        }
+
+        // 更新底部导航切换
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', function(e) {
+                e.preventDefault();
+                const filter = this.dataset.filter;
+                const status = wordStatus.load();
+                
+                // 更新标签状态
+                document.querySelectorAll('.nav-tab').forEach(t => 
+                    t.classList.toggle('active', t === this));
+
+                // 筛选单词
+                const filtered = verbsData.filter(word => {
+                    if (filter === 'all') return true;
+                    return status[word.word] === filter;
+                });
+
+                renderWords(filtered);
+            });
+        });
+
+        // 更新搜索功能，保持筛选状态
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const currentFilter = document.querySelector('.nav-tab.active').dataset.filter;
+            const status = wordStatus.load();
+
+            const filtered = verbsData.filter(word => {
+                const matchesSearch = word.word.toLowerCase().includes(searchTerm) ||
+                    word.definition.toLowerCase().includes(searchTerm) ||
+                    word.forms.original_phonetic.toLowerCase().includes(searchTerm) ||
+                    word.forms.past_phonetic.toLowerCase().includes(searchTerm) ||
+                    word.forms.pastParticiple_phonetic.toLowerCase().includes(searchTerm) ||
+                    word.forms.original.toLowerCase().includes(searchTerm) ||
+                    word.forms.past.toLowerCase().includes(searchTerm) ||
+                    word.forms.pastParticiple.toLowerCase().includes(searchTerm);
+
+                if (currentFilter === 'all') return matchesSearch;
+                return matchesSearch && status[word.word] === currentFilter;
+            });
+
+            renderWords(filtered);
+        });
+
+        // 初始化真实数据
+        renderWords(verbsData);
+
+        // 优化释义切换函数
+        function toggleDefinition(event, element) {
+            // 防止标记按钮点击事件触发释义展开
+            if (event.target.closest('.mark-btn') || event.target.closest('.speak-button')) {
+                return;
+            }
+            
+            const definition = element.querySelector('.definition');
+            const definitionWrapper = element.querySelector('.definition-wrapper');
+            const indicator = element.querySelector('.toggle-indicator');
+            
+            definition.classList.toggle('show');
+            definitionWrapper.classList.toggle('show');
+            indicator.classList.toggle('show');
+        }
+    </script>
+</body>
+
+</html>

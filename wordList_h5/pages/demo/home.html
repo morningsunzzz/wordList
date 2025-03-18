@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>我的词库</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4CAF50;
+            --background: #f5f5f5;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: var(--background);
+        }
+
+        /* 顶部导航栏 */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo {
+            font-size: 24px;
+            color: var(--primary-color);
+        }
+
+        .title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .nav-actions {
+            margin-left: auto;
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: #f5f5f5;
+            color: #666;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .nav-btn:hover {
+            background: #e0e0e0;
+        }
+
+        /* 主体内容区 */
+        .container {
+            max-width: 1200px;
+            margin: 80px auto 20px;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        /* 词库卡片 */
+        .word-lib-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .word-lib-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .lib-icon {
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+
+        .lib-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .lib-subtitle {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        /* 进度条 */
+        .progress-bar {
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background: var(--primary-color);
+            border-radius: 3px;
+            transition: width 0.3s;
+        }
+
+        /* 收藏按钮 */
+        .favorite-btn {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            color: #ffd700;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        .favorite-btn:hover {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 顶部导航栏 -->
+    <nav class="navbar">
+        <div class="logo-section">
+            <i class="fas fa-book logo"></i>
+            <span class="title">我的词库</span>
+        </div>
+        <div class="nav-actions">
+            <button class="nav-btn">
+                <i class="fas fa-search"></i>
+            </button>
+            <button class="nav-btn">
+                <i class="fas fa-filter"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- 主体内容区 -->
+    <div class="container">
+        <!-- 不规则动词词库 -->
+        <div class="word-lib-card" onclick="location.href='index.html'">
+            <div class="lib-icon">📚</div>
+            <h2 class="lib-title">不规则动词</h2>
+            <p class="lib-subtitle">157词·B2中级</p>
+            <div class="progress-bar">
+                <div class="progress" style="width: 60%"></div>
+            </div>
+            <button class="favorite-btn">
+                <i class="fas fa-star"></i>
+            </button>
+        </div>
+
+        <!-- 旅行用语库 -->
+        <div class="word-lib-card">
+            <div class="lib-icon">✈️</div>
+            <h2 class="lib-title">机场通关必备</h2>
+            <p class="lib-subtitle">89词·A1初级</p>
+            <div class="progress-bar">
+                <div class="progress" style="width: 30%"></div>
+            </div>
+            <button class="favorite-btn">
+                <i class="far fa-star"></i>
+            </button>
+        </div>
+
+        <!-- 商务英语库 -->
+        <div class="word-lib-card">
+            <div class="lib-icon">💼</div>
+            <h2 class="lib-title">会议场景词汇</h2>
+            <p class="lib-subtitle">213词·C1高级</p>
+            <div class="progress-bar">
+                <div class="progress" style="width: 15%"></div>
+            </div>
+            <button class="favorite-btn">
+                <i class="far fa-star"></i>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // 收藏功能
+        document.querySelectorAll('.favorite-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const icon = btn.querySelector('i');
+                if (icon.classList.contains('far')) {
+                    icon.classList.replace('far', 'fas');
+                } else {
+                    icon.classList.replace('fas', 'far');
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
